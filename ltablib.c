@@ -147,7 +147,7 @@ static void addfield (lua_State *L, luaL_Buffer *b, lua_Integer i) {
   lua_geti(L, 1, i);
   if (l_unlikely(!lua_isstring(L, -1)))
     luaL_error(L, "invalid value (%s) at index %I in table for 'concat'",
-                  luaL_typename(L, -1), (LUAI_UACINT)i);
+                  luaL_typename(L, -1), i);
   luaL_addvalue(b);
 }
 
@@ -231,7 +231,7 @@ typedef unsigned int IdxT;
 */
 #if !defined(l_randomizePivot)		/* { */
 
-#include <time.h>
+#include "ltime.h"
 
 /* size of 'e' measured in number of 'unsigned int's */
 #define sof(e)		(sizeof(e) / sizeof(unsigned int))
@@ -243,8 +243,8 @@ typedef unsigned int IdxT;
 ** is to copy them to an array of a known type and use the array values.
 */
 static unsigned int l_randomizePivot (void) {
-  clock_t c = clock();
-  time_t t = time(NULL);
+  long int c = clock();
+  long int t = time(NULL);
   unsigned int buff[sof(c) + sof(t)];
   unsigned int i, rnd = 0;
   memcpy(buff, &c, sof(c) * sizeof(unsigned int));

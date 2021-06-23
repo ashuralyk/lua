@@ -14,8 +14,8 @@
 #include <limits.h>
 #include <math.h>
 #include <stdlib.h>
-#include <time.h>
 
+#include "ltime.h"
 #include "lua.h"
 
 #include "lauxlib.h"

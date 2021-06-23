@@ -26,6 +26,7 @@
 
 #include "lauxlib.h"
 
+#include "ltime.h"
 
 #if !defined(MAX_SIZET)
 /* maximum value for size_t */
@@ -1083,9 +1084,14 @@ static void warnfon (void *ud, const char *message, int tocont) {
   warnfcont(ud, message, tocont);  /* finish processing */
 }
 
+extern long int g_time;
+extern long int g_clock;
 
-LUALIB_API lua_State *luaL_newstate (void) {
-  lua_State *L = lua_newstate(l_alloc, NULL);
+LUALIB_API lua_State *luaL_newstate (long int _time, long int _clock) {
+  lua_State *L = NULL;
+  g_time = _time;
+  g_clock = _clock;
+  L = lua_newstate(l_alloc, NULL);
   if (l_likely(L)) {
     lua_atpanic(L, &panic);
     lua_setwarnf(L, warnfoff, L);  /* default is warnings off */

@@ -208,43 +208,6 @@ static int str_char (lua_State *L) {
 
 
 /*
-** Buffer to store the result of 'string.dump'. It must be initialized
-** after the call to 'lua_dump', to ensure that the function is on the
-** top of the stack when 'lua_dump' is called. ('luaL_buffinit' might
-** push stuff.)
-*/
-struct str_Writer {
-  int init;  /* true iff buffer has been initialized */
-  luaL_Buffer B;
-};
-
-
-static int writer (lua_State *L, const void *b, size_t size, void *ud) {
-  struct str_Writer *state = (struct str_Writer *)ud;
-  if (!state->init) {
-    state->init = 1;
-    luaL_buffinit(L, &state->B);
-  }
-  luaL_addlstring(&state->B, (const char *)b, size);
-  return 0;
-}
-
-
-static int str_dump (lua_State *L) {
-  struct str_Writer state;
-  int strip = lua_toboolean(L, 2);
-  luaL_checktype(L, 1, LUA_TFUNCTION);
-  lua_settop(L, 1);  /* ensure function is on the top of the stack */
-  state.init = 0;
-  if (l_unlikely(lua_dump(L, writer, &state, strip) != 0))
-    return luaL_error(L, "unable to dump given function");
-  luaL_pushresult(&state.B);
-  return 1;
-}
-
-
-
-/*
 ** {======================================================
 ** METAMETHODS
 ** =======================================================
@@ -1352,6 +1315,15 @@ static const union {
 } nativeendian = {1};
 
 
+/* dummy structure to get native alignment requirements */
+struct cD {
+  char c;
+  union { double d; void *p; lua_Integer i; lua_Number n; } u;
+};
+
+#define MAXALIGN	(offsetof(struct cD, u))
+
+
 /*
 ** information to pack/unpack stuff
 */
@@ -1426,8 +1398,6 @@ static void initheader (lua_State *L, Header *h) {
 ** Read and classify next option. 'size' is filled with option's size.
 */
 static KOption getoption (Header *h, const char **fmt, int *size) {
-  /* dummy structure to get native alignment requirements */
-  struct cD { char c; union { LUAI_MAXALIGN; } u; };
   int opt = *((*fmt)++);
   *size = 0;  /* default */
   switch (opt) {
@@ -1458,11 +1428,7 @@ static KOption getoption (Header *h, const char **fmt, int *size) {
     case '<': h->islittle = 1; break;
     case '>': h->islittle = 0; break;
     case '=': h->islittle = nativeendian.little; break;
-    case '!': {
-      const int maxalign = offsetof(struct cD, u);
-      h->maxalign = getnumlimit(h, fmt, maxalign);
-      break;
-    }
+    case '!': h->maxalign = getnumlimit(h, fmt, MAXALIGN); break;
     default: luaL_error(h->L, "invalid format option '%c'", opt);
   }
   return Knop;
@@ -1770,7 +1736,7 @@ static int str_unpack (lua_State *L) {
 static const luaL_Reg strlib[] = {
   {"byte", str_byte},
   {"char", str_char},
-  {"dump", str_dump},
+  /* {"dump", str_dump}, */
   {"find", str_find},
   {"format", str_format},
   {"gmatch", gmatch},

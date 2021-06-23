@@ -98,7 +98,7 @@ LUALIB_API int (luaL_loadbufferx) (lua_State *L, const char *buff, size_t sz,
                                    const char *name, const char *mode);
 LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s);
 
-LUALIB_API lua_State *(luaL_newstate) (void);
+LUALIB_API lua_State *(luaL_newstate) (long int, long int);
 
 LUALIB_API lua_Integer (luaL_len) (lua_State *L, int idx);
 
@@ -224,23 +224,6 @@ LUALIB_API char *(luaL_buffinitsize) (lua_State *L, luaL_Buffer *B, size_t sz);
 ** File handles for IO library
 ** =======================================================
 */
-
-/*
-** A file handle is a userdata with metatable 'LUA_FILEHANDLE' and
-** initial structure 'luaL_Stream' (it may contain other fields
-** after that initial structure).
-*/
-
-#define LUA_FILEHANDLE          "FILE*"
-
-
-typedef struct luaL_Stream {
-  FILE *f;  /* stream (NULL for incompletely created streams) */
-  lua_CFunction closef;  /* to close stream (NULL for closed streams) */
-} luaL_Stream;
-
-/* }====================================================== */
-
 /*
 ** {==================================================================
 ** "Abstraction Layer" for basic report of messages and errors

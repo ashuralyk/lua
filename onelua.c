@@ -38,7 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include "ltime.h"
 
 
 /* setup for luaconf.h */
@@ -62,7 +62,6 @@
 #include "lopcodes.c"
 #include "lmem.c"
 #include "lundump.c"
-#include "ldump.c"
 #include "lstate.c"
 #include "lgc.c"
 #include "llex.c"
@@ -84,15 +83,11 @@
 /* standard library  -- not used by luac */
 #ifndef MAKE_LUAC
 #include "lbaselib.c"
-#include "lcorolib.c"
 #include "ldblib.c"
-#include "liolib.c"
 #include "lmathlib.c"
 #include "loadlib.c"
-#include "loslib.c"
 #include "lstrlib.c"
 #include "ltablib.c"
-#include "lutf8lib.c"
 #include "linit.c"
 #endif
 
